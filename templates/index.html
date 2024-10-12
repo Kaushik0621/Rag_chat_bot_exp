@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('send_static', path='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Document Upload and RAG Chatbot</h1>
+        <div id="upload-section">
+            <h2>Upload Documents</h2>
+            <input type="file" id="file-input" multiple>
+            <button id="upload-button">Upload and Process</button>
+            <p id="upload-status"></p>
+        </div>
+        <div id="chat-section" style="display:none;">
+            <h2>Chat with your documents</h2>
+            <div id="chat-box"></div>
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+    <script src="{{ url_for('send_static', path='js/scripts.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+Flask
+Flask-Cors
+openai
+faiss-cpu
+python-dotenv
+PyPDF2
+nltk
+unstructured
+numpy
+werkzeug
+pip install openai==0.28
+unstructured[pdf]

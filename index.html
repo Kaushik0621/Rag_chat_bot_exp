@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        /* Add your CSS here to style the chat interface */
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f7f7f7; }
+        #chat-container { width: 50%; max-width: 600px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        #messages { overflow-y: auto; max-height: 300px; margin-bottom: 10px; }
+        .message { padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .user { text-align: right; background: #007bff; color: white; }
+        .bot { text-align: left; background: #e0e0e0; color: black; }
+        #references { font-size: 0.9em; color: #555; }
+        input, button { padding: 10px; margin-top: 10px; width: 100%; border: none; border-radius: 5px; }
+        button { background-color: #007bff; color: white; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <input type="text" id="question" placeholder="Ask a question...">
+        <button onclick="sendQuestion()">Send</button>
+        <div id="references"></div>
+    </div>
+
+    <script>
+        async function sendQuestion() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Add user's question to the chat
+            const messagesDiv = document.getElementById('messages');
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user');
+            userMessage.textContent = question;
+            messagesDiv.appendChild(userMessage);
+            questionInput.value = '';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question})
+                });
+                const data = await response.json();
+
+                // Display bot's answer
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot');
+                botMessage.textContent = data.answer || 'Error: Unable to retrieve response.';
+                messagesDiv.appendChild(botMessage);
+
+                // Display references
+                const referencesDiv = document.getElementById('references');
+                referencesDiv.innerHTML = '<h3>References:</h3>';
+                if (data.references && data.references.length > 0) {
+                    data.references.forEach(ref => {
+                        const refDiv = document.createElement('div');
+                        refDiv.innerHTML = `<strong>Source:</strong> ${ref.source} <br> <strong>Page:</strong> ${ref.page} <br> <strong>Snippet:</strong> ${ref.text}`;
+                        referencesDiv.appendChild(refDiv);
+                    });
+                } else {
+                    referencesDiv.innerHTML += '<p>No references available.</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'bot');
+                errorMessage.textContent = 'Error: Unable to retrieve response.';
+                messagesDiv.appendChild(errorMessage);
+            }
+
+            // Scroll to the latest message
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

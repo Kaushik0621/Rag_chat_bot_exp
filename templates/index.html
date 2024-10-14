@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #chat-container { max-width: 600px; margin: 0 auto; }
+        .message { margin: 10px 0; }
+        .user { color: blue; }
+        .bot { color: green; }
+        #references { background-color: #f9f9f9; padding: 10px; margin-top: 20px; }
+        #references h3 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <input type="text" id="question" placeholder="Ask a question..." style="width: 80%;">
+        <button onclick="sendQuestion()">Send</button>
+    </div>
+    <div id="references"></div>
+
+    <script>
+        async function sendQuestion() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Display user's question
+            const messagesDiv = document.getElementById('messages');
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user');
+            userMessage.textContent = 'You: ' + question;
+            messagesDiv.appendChild(userMessage);
+
+            // Clear input
+            questionInput.value = '';
+
+            // Send question to backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question})
+                });
+                const data = await response.json();
+
+                // Display bot's answer
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot');
+                botMessage.textContent = 'Bot: ' + data.answer;
+                messagesDiv.appendChild(botMessage);
+
+                // Display references
+                const referencesDiv = document.getElementById('references');
+                referencesDiv.innerHTML = '<h3>References:</h3>';
+                data.references.forEach(ref => {
+                    const refDiv = document.createElement('div');
+                    refDiv.innerHTML = `<strong>Source:</strong> ${ref.source} | <strong>Page:</strong> ${ref.page} | <strong>Paragraph:</strong> ${ref.paragraph}<br><strong>Snippet:</strong> ${ref.snippet}`;
+                    referencesDiv.appendChild(refDiv);
+                });
+
+                // Scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
